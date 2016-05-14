@@ -18,6 +18,6 @@ pub fn mkrepo(store: &Store) -> Result<()> {
 }
 
 pub fn hasrepo(store: &Store) -> bool {
-    unimplemented!()
+    Repository::open(store.path()).is_some()
 }
 
