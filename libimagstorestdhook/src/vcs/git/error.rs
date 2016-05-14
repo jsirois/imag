@@ -8,11 +8,12 @@ use std::fmt::{Display, Formatter};
  */
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum GitHookErrorKind {
+    MkRepo,
 }
 
 fn githook_error_type_as_str(e: &GitHookErrorKind) -> &'static str {
     match *e {
-        _ => "",
+        GitHookErrorKind::MkRepo => "Repository creation error",
     }
 }
 
