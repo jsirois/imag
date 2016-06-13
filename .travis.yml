@@ -76,6 +76,9 @@ addons:
 after_success:
     - travis-cargo --only stable doc-upload
 
+after_script:
+    - source .lgpl_check.sh
+
 notifications:
     email:
         on_success: never
