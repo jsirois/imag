@@ -58,7 +58,26 @@ fn add(rt: &Runtime) {
 }
 
 fn remove(rt: &Runtime) {
-    unimplemented!()
+    use libimagref::error::RefErrorKind;
+    use libimagerror::into::IntoError;
+
+    let cmd  = rt.cli().subcommand_matches("remove").unwrap();
+    let hash = cmd.value_of("hash").map(String::from).unwrap(); // saved by clap
+    let yes  = cmd.is_present("yes");
+
+    Ref::get_by_hash(rt.store(), hash)
+        .and_then(|r| {
+            match r {
+                Some(r) => {
+                    debug!("We have a Ref object: {:?}", r);
+                    r.delete(rt.store())
+                },
+
+                None => Err(RefErrorKind::RefNotInStore.into_error()),
+            }
+        })
+        .map_err(|e| trace_error(&e))
+        .map(|_| info!("Ok"));
 }
 
 fn list(rt: &Runtime) {
