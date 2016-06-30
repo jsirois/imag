@@ -6,6 +6,11 @@ let
     cargo
     pkgs.llvmPackages.lldb
   ];
+
+  dependencies = with pkgs; [
+    openssl
+    zlib
+  ];
 in
 
 pkgs.stdenv.mkDerivation rec {
@@ -13,7 +18,7 @@ pkgs.stdenv.mkDerivation rec {
     src = ./.;
     version = "0.0.0";
 
-    buildInputs = [ env ];
+    buildInputs = [ env dependencies ];
 
 }
 
