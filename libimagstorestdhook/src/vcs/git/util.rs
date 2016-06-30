@@ -4,7 +4,8 @@
 
 use git2::Repository;
 
-use vcs::git::error::{GitHookError as GHE, GitHookErrorKind as GHEK};
+use vcs::git::error::GitHookErrorKind as GHEK;
+use vcs::git::error::MapErrInto;
 
 pub fn mkrepo(store: &Store) -> Result<()> {
     let mut opts = RepositoryInitOpts::new();
@@ -14,7 +15,7 @@ pub fn mkrepo(store: &Store) -> Result<()> {
     opts.external_template(false);
     Repository::init_opts(store.path(), &opts)
         .map(|_| ())
-        .map_err(|e| GHE::new(GHEK::MkRepo, Some(Box::new(e))))
+        .map_err_into(GHEK::MkRepo)
 }
 
 pub fn hasrepo(store: &Store) -> bool {
