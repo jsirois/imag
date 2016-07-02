@@ -1,6 +1,6 @@
 generate_error_module!(
     generate_error_types!(GitHookError, GitHookErrorKind,
-        MkRepo => "Repository creation error",
+        MkRepo => "Repository creation error"
     );
 );
 
