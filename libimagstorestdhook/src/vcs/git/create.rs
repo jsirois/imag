@@ -32,7 +32,6 @@ impl StoreIdAccessor for CreateHook {
 
     fn access(&self, id: &StoreId) -> HookResult<()> {
         debug!("[GIT CREATE HOOK]: {:?}", id);
-        unimplemented!()
         Ok(())
     }
 
