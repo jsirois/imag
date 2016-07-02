@@ -71,7 +71,9 @@ addons:
             - libcurl4-openssl-dev
             - libelf-dev
             - libdw-dev
+            - libzzip-dev
             - tree
+            - cmake
 
 after_success:
     - travis-cargo --only stable doc-upload
