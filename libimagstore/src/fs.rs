@@ -12,6 +12,7 @@ mod remove_file {
 
     #[cfg(test)]
     pub fn remove_file<P: AsRef<Path>>(path: P) -> Result<()> {
+        unimplemented!()
     }
 
     #[cfg(not(test))]
