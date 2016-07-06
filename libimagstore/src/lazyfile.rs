@@ -1,7 +1,8 @@
 use error::{MapErrInto, StoreError as SE, StoreErrorKind as SEK};
 use std::io::{Seek, SeekFrom};
 use std::path::{Path, PathBuf};
-use std::fs::{File, OpenOptions, create_dir_all};
+use std::fs::OpenOptions;
+use fs::{File, create_dir_all};
 
 /// `LazyFile` type
 ///
@@ -13,7 +14,7 @@ pub enum LazyFile {
 }
 
 fn open_file<A: AsRef<Path>>(p: A) -> ::std::io::Result<File> {
-    OpenOptions::new().write(true).read(true).open(p)
+    OpenOptions::new().write(true).read(true).open(p).map(|f| f.into())
 }
 
 fn create_file<A: AsRef<Path>>(p: A) -> ::std::io::Result<File> {
@@ -23,7 +24,7 @@ fn create_file<A: AsRef<Path>>(p: A) -> ::std::io::Result<File> {
             return Err(e);
         }
     }
-    OpenOptions::new().write(true).read(true).create(true).open(p)
+    OpenOptions::new().write(true).read(true).create(true).open(p).map(|f| f.into())
 }
 
 impl LazyFile {

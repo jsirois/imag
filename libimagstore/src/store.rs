@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::fs::{File, remove_file};
 use std::ops::Drop;
 use std::path::PathBuf;
 use std::result::Result as RResult;
@@ -27,6 +26,7 @@ use error::{StoreError as SE, StoreErrorKind as SEK};
 use error::MapErrInto;
 use storeid::{IntoStoreId, StoreId, StoreIdIterator};
 use lazyfile::LazyFile;
+use fs::{File, remove_file};
 
 use hook::aspect::Aspect;
 use hook::error::HookErrorKind;
