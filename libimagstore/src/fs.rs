@@ -130,7 +130,9 @@ mod remove_file {
 
     #[cfg(test)]
     pub fn remove_file<P: AsRef<Path>>(path: P) -> Result<()> {
-        unimplemented!()
+        use super::filesystem;
+        let fs = filesystem::filesystem.lock();
+        fs.remove_file(path)
     }
 
     #[cfg(not(test))]
