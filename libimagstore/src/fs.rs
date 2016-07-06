@@ -20,7 +20,6 @@ pub mod filesystem {
 
     use self::default::DefaultFS;
 
-
     lazy_static! {
         pub static ref filesystem : Arc<Mutex<Box<FileSystem>>> =
             Arc::new(Mutex::new(Box::new(DefaultFS::new())));
