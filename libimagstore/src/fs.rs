@@ -8,7 +8,6 @@
 mod remove_file {
     use std::io::Result;
     use std::path::Path;
-    use std::fs::remove_file as std_remove_file;
 
     #[cfg(test)]
     pub fn remove_file<P: AsRef<Path>>(path: P) -> Result<()> {
@@ -17,6 +16,7 @@ mod remove_file {
 
     #[cfg(not(test))]
     pub fn remove_file<P: AsRef<Path>>(path: P) -> Result<()> {
+        use std::fs::remove_file as std_remove_file;
         std_remove_file(path)
     }
 }
@@ -25,7 +25,6 @@ pub use self::remove_file::remove_file;
 mod create_dir_all {
     use std::io::Result;
     use std::path::Path;
-    use std::fs::create_dir_all as std_create_dir_all;
 
     #[cfg(test)]
     pub fn create_dir_all<P: AsRef<Path>>(path: P) -> Result<()> {
@@ -34,6 +33,7 @@ mod create_dir_all {
 
     #[cfg(not(test))]
     pub fn create_dir_all<P: AsRef<Path>>(path: P) -> Result<()> {
+        use std::fs::create_dir_all as std_create_dir_all;
         std_create_dir_all(path)
     }
 }
@@ -41,6 +41,8 @@ pub use self::create_dir_all::create_dir_all;
 
 mod file {
     use std::fs::File as FSFile;
+
+    #[cfg(not(test))]
     use std::ops::{Deref, DerefMut};
 
     #[cfg(test)]
