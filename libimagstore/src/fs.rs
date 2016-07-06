@@ -5,6 +5,111 @@
 //! should be inlined by the compiler then, so we have zero costs for this thin private layer over
 //! std::fs.
 
+#[cfg(test)]
+pub mod filesystem {
+    use std::sync::{Arc, Mutex};
+    use std::io::Result;
+    use std::path::Path;
+    use std::path::PathBuf;
+    use std::fs::File as FSFile;
+    use std::collections::HashMap;
+    use std::fs::Metadata;
+    use std::io::{Seek, SeekFrom, Write, Read};
+
+    use super::file::File;
+
+    use self::default::DefaultFS;
+
+    static filesystem : Arc<Mutex<Box<FileSystem>>> = Arc::new(Mutex::new(Box::new(DefaultFS::new())));
+
+    pub trait FileSystem {
+        fn remove_file<P: AsRef<Path>>(&self, path: P)    -> Result<()>;
+        fn create_dir_all<P: AsRef<Path>>(&self, path: P) -> Result<()>;
+        fn file_open<P: AsRef<Path>>(path: P)             -> Result<FSFile>;
+        fn file_create<P: AsRef<Path>>(path: P)           -> Result<FSFile>;
+        fn file_sync_all(&self)                           -> Result<()>;
+        fn file_sync_data(&self)                          -> Result<()>;
+        fn file_set_len(&self, size: u64)                 -> Result<()>;
+        fn file_metadata(&self)                           -> Result<Metadata>;
+        fn file_try_clone(&self)                          -> Result<FSFile>;
+        fn file_read(&mut self, buf: &mut [u8])           -> Result<usize>;
+        fn file_write(&mut self, buf: &[u8])              -> Result<usize>;
+        fn file_flush(&mut self)                          -> Result<()>;
+        fn file_seek(&mut self, pos: SeekFrom)            -> Result<u64>;
+    }
+
+    pub mod default {
+
+        pub struct DefaultFS {
+            hm: HashMap<PathBuf, String>,
+        }
+
+        impl DefaultFS {
+            fn new() -> DefaultFS {
+                DefaultFS {
+                    hm: HashMap::new()
+                }
+            }
+        }
+
+        impl FileSystem for DefaultFS {
+
+            pub fn remove_file<P: AsRef<Path>>(&self, path: P) -> Result<()> {
+                unimplemented!()
+            }
+
+            pub fn create_dir_all<P: AsRef<Path>>(&self, path: P) -> Result<()> {
+                unimplemented!()
+            }
+
+            pub fn file_open<P: AsRef<Path>>(path: P) -> Result<FSFile> {
+                unimplemented!()
+            }
+
+            pub fn file_create<P: AsRef<Path>>(path: P) -> Result<FSFile> {
+                unimplemented!()
+            }
+
+            pub fn file_sync_all(&self) -> Result<()> {
+                unimplemented!()
+            }
+
+            pub fn file_sync_data(&self) -> Result<()> {
+                unimplemented!()
+            }
+
+            pub fn file_set_len(&self, size: u64) -> Result<()> {
+                unimplemented!()
+            }
+
+            pub fn file_metadata(&self) -> Result<Metadata> {
+                unimplemented!()
+            }
+
+            pub fn file_try_clone(&self) -> Result<FSFile> {
+                unimplemented!()
+            }
+
+            pub fn file_read(&mut self, buf: &mut [u8]) -> Result<usize> {
+                unimplemented!()
+            }
+
+            pub fn file_write(&mut self, buf: &[u8]) -> Result<usize> {
+                unimplemented!()
+            }
+
+            pub fn file_flush(&mut self) -> Result<()> {
+                unimplemented!()
+            }
+
+            pub fn file_seek(&mut self, pos: SeekFrom) -> Result<u64> {
+                unimplemented!()
+            }
+        }
+
+    }
+}
+
 mod remove_file {
     use std::io::Result;
     use std::path::Path;
