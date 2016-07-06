@@ -29,6 +29,7 @@ mod create_dir_all {
 
     #[cfg(test)]
     pub fn create_dir_all<P: AsRef<Path>>(path: P) -> Result<()> {
+        unimplemented!()
     }
 
     #[cfg(not(test))]
