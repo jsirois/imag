@@ -20,13 +20,17 @@ pub mod filesystem {
 
     use self::default::DefaultFS;
 
-    static filesystem : Arc<Mutex<Box<FileSystem>>> = Arc::new(Mutex::new(Box::new(DefaultFS::new())));
+
+    lazy_static! {
+        pub static ref filesystem : Arc<Mutex<Box<FileSystem>>> =
+            Arc::new(Mutex::new(Box::new(DefaultFS::new())));
+    }
 
     pub trait FileSystem {
         fn remove_file<P: AsRef<Path>>(&self, path: P)    -> Result<()>;
         fn create_dir_all<P: AsRef<Path>>(&self, path: P) -> Result<()>;
-        fn file_open<P: AsRef<Path>>(path: P)             -> Result<FSFile>;
-        fn file_create<P: AsRef<Path>>(path: P)           -> Result<FSFile>;
+        fn file_open<P: AsRef<Path>>(&self, path: P)      -> Result<FSFile>;
+        fn file_create<P: AsRef<Path>>(&self, path: P)    -> Result<FSFile>;
         fn file_sync_all(&self)                           -> Result<()>;
         fn file_sync_data(&self)                          -> Result<()>;
         fn file_set_len(&self, size: u64)                 -> Result<()>;
@@ -39,6 +43,16 @@ pub mod filesystem {
     }
 
     pub mod default {
+        use std::sync::{Arc, Mutex};
+        use std::io::Result;
+        use std::path::Path;
+        use std::path::PathBuf;
+        use std::fs::File as FSFile;
+        use std::collections::HashMap;
+        use std::fs::Metadata;
+        use std::io::{Seek, SeekFrom, Write, Read};
+
+        use super::FileSystem;
 
         pub struct DefaultFS {
             hm: HashMap<PathBuf, String>,
@@ -62,11 +76,11 @@ pub mod filesystem {
                 unimplemented!()
             }
 
-            pub fn file_open<P: AsRef<Path>>(path: P) -> Result<FSFile> {
+            pub fn file_open<P: AsRef<Path>>(&self, path: P) -> Result<FSFile> {
                 unimplemented!()
             }
 
-            pub fn file_create<P: AsRef<Path>>(path: P) -> Result<FSFile> {
+            pub fn file_create<P: AsRef<Path>>(&self, path: P) -> Result<FSFile> {
                 unimplemented!()
             }
 
