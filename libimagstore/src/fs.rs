@@ -160,6 +160,14 @@ mod file {
 
     }
 
+    impl From<FSFile> for File {
+
+        fn from(file: FSFile) -> File {
+            File(file)
+        }
+
+    }
+
 }
 pub use self::file::File;
 
