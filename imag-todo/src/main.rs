@@ -128,7 +128,7 @@ fn tw_hook(rt: &Runtime) {
             Err(e) => {
                 trace_error(&e);
                 exit(1);
-            };
+            },
         }
     } else {
         // Should not be possible, as one argument is required via
