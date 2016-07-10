@@ -51,15 +51,51 @@ impl<'a> Task<'a> {
         unimplemented!()
     }
 
+    /// Get a task from a String. The String is expected to contain the JSON-representation of the
+    /// Task to get from the store (only the UUID really matters in this case)
+    pub fn get_from_string(store: &'a Store, s: String) -> Result<Task<'a>> {
+        unimplemented!()
+    }
+
+    /// Get a task from an UUID.
+    pub fn get_from_uuid(store: &'a Store, uuid: Uuid) -> Result<Task<'a>> {
+        unimplemented!()
+    }
+
     /// Same as Task::get_from_import() but uses Store::retrieve() rather than Store::get(), to
     /// implicitely create the task if it does not exist.
     pub fn retrieve_from_import<R: BufRead>(store: &'a Store, mut r: R) -> Result<Task<'a>> {
         unimplemented!()
     }
 
-    /// Call `Task::update_from_imports()` function with `Task::copy_information()`
+    /// Retrieve a task from a String. The String is expected to contain the JSON-representation of
+    /// the Task to retrieve from the store (only the UUID really matters in this case)
+    pub fn retrieve_from_string(store: &'a Store, s: String) -> Result<Task<'a>> {
+        unimplemented!()
+    }
+
+    /// Retrieve a task from an UUID.
+    pub fn retrieve_from_uuid(store: &'a Store, uuid: Uuid) -> Result<Task<'a>> {
+        unimplemented!()
+    }
+
+    /// Call `Task::update_from_imports_with()` function with `Task::copy_information()`
     pub fn update_from_imports<R: BufRead>(store: &'a Store, mut r: R) -> Result<(Task<'a>,
                                                                                   Task<'a>)> {
+        unimplemented!()
+    }
+
+    /// Call `Task::update_from_strings_with()` function with `Task::copy_information()`
+    pub fn update_from_strings<R>(store: &'a Store, old_t: String, new_t: String) -> Result<(Task<'a>, Task<'a>)>
+        where R: BufRead
+    {
+        unimplemented!()
+    }
+
+    /// Call `Task::update_from_uuid_and_string_with()` function with `Task::copy_information()`
+    pub fn update_from_uuid_and_string<R>(store: &'a Store, old_t: Uuid, new_t: String) -> Result<(Task<'a>, Task<'a>)>
+        where R: BufRead
+    {
         unimplemented!()
     }
 
@@ -76,7 +112,25 @@ impl<'a> Task<'a> {
     ///    the passed copy-functionality
     ///  * Returning both Task objects in a tuple (old, new)
     ///
-    pub fn update_from_imports<R, F>(store: &'a Store, mut r: R) -> Result<(Task<'a>, Task<'a>)>
+    pub fn update_from_imports_with<R, F>(store: &'a Store, mut r: R, f: F) -> Result<(Task<'a>, Task<'a>)>
+        where R: BufRead,
+              F: Fn(&mut Task<'a>, &mut Task<'a>) -> Result<()>
+    {
+        unimplemented!()
+    }
+
+    /// Same as `Task::update_from_imports_with()` but with two Strings rather than reading from a
+    /// BufRead. Expects both Strings to contain readable JSON.
+    pub fn update_from_strings_with<R, F>(store: &'a Store, old_t: String, new_t: String, f: F) -> Result<(Task<'a>, Task<'a>)>
+        where R: BufRead,
+              F: Fn(&mut Task<'a>, &mut Task<'a>) -> Result<()>
+    {
+        unimplemented!()
+    }
+
+    /// Same as `Task::update_from_strings_with()` but with the parameter for the old task beeing
+    /// the uuid of the task.
+    pub fn update_from_uuid_and_string_with<R, F>(store: &'a Store, old_t: Uuid, new_t: String, f: F) -> Result<(Task<'a>, Task<'a>)>
         where R: BufRead,
               F: Fn(&mut Task<'a>, &mut Task<'a>) -> Result<()>
     {
