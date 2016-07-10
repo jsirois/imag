@@ -37,6 +37,64 @@ impl<'a> Task<'a> {
             })
     }
 
+    /// Get a task from an import string. That is: read the imported string, get the UUID from it
+    /// and try to load this UUID from store.
+    ///
+    /// Possible return values are:
+    ///
+    /// * Ok(Ok(Task))
+    /// * Ok(Err(String)) - where the String is the String read from the `r` parameter
+    /// * Err(_)          - where the error is an error that happened during evaluation
+    ///
+    pub fn get_from_import<R: BufRead>(store: &'a Store, mut r: R) -> Result<RResult<Task<'a>,
+    String>> {
+        unimplemented!()
+    }
+
+    /// Same as Task::get_from_import() but uses Store::retrieve() rather than Store::get(), to
+    /// implicitely create the task if it does not exist.
+    pub fn retrieve_from_import<R: BufRead>(store: &'a Store, mut r: R) -> Result<Task<'a>> {
+        unimplemented!()
+    }
+
+    /// Call `Task::update_from_imports()` function with `Task::copy_information()`
+    pub fn update_from_imports<R: BufRead>(store: &'a Store, mut r: R) -> Result<(Task<'a>,
+                                                                                  Task<'a>)> {
+        unimplemented!()
+    }
+
+    /// Update a task from imports.
+    ///
+    /// Expects the `r` variable to return two JSON objects, the first one beeing the Task before
+    /// the modification, the second one after the modification.
+    ///
+    /// It then tries to load the first task, getting the corrosponding object from the store,
+    /// and updating the task with the new information. That is
+    ///
+    ///  * Writing a new task object to the store
+    ///  * Copying all information from the header of the old task to the new task via
+    ///    the passed copy-functionality
+    ///  * Returning both Task objects in a tuple (old, new)
+    ///
+    pub fn update_from_imports<R, F>(store: &'a Store, mut r: R) -> Result<(Task<'a>, Task<'a>)>
+        where R: BufRead,
+              F: Fn(&mut Task<'a>, &mut Task<'a>) -> Result<()>
+    {
+        unimplemented!()
+    }
+
+    /// Copy information from one task to the second task. This function can be used to copy
+    /// information from one task to another.
+    ///
+    /// Two kinds of informations are copied:
+    ///
+    /// 1. links (via libimagentrylink)
+    /// 1. tags (via libimagentrytag)
+    ///
+    pub fn copy_information(old_task: &mut Task<'a>, new_task: &mut Task<'a>) -> Result<()> {
+        unimplemented!()
+    }
+
     pub fn delete_by_uuid(store: &Store, uuid: Uuid) -> Result<()> {
         store.delete(ModuleEntryPath::new(format!("taskwarrior/{}", uuid)).into_storeid())
             .map_err(|e| TodoError::new(TodoErrorKind::StoreError, Some(Box::new(e))))
