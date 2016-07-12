@@ -27,6 +27,14 @@ impl Into<StoreId> for EntryStoreId {
 
 }
 
+impl Deref for EntryStoreId {
+    type Target = StoreId;
+
+    fn deref(&self) -> &StoreId {
+        &self.0
+    }
+}
+
 impl IntoStoreId for EntryStoreId {
 
     fn into_storeid(self) -> StoreId {
