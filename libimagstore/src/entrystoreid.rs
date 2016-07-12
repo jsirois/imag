@@ -9,7 +9,7 @@ use store::Store;
 use storeid::IntoStoreId;
 use storeid::StoreId;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Hash, Eq, PartialOrd, Ord)]
 pub struct EntryStoreId(StoreId);
 
 impl EntryStoreId {
