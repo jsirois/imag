@@ -1,5 +1,5 @@
 use std::fmt::Error as FmtError;
-use std::fmt::{Display, Debug, Formatter};
+use std::fmt::{Display, Formatter};
 use std::path::PathBuf;
 use std::result::Result as RResult;
 
@@ -13,7 +13,7 @@ pub struct EntryStoreId(StoreId);
 
 impl EntryStoreId {
 
-    fn new(store: &Store, si: StoreId) -> Result<EntryStoreId> {
+    pub fn new(store: &Store, si: StoreId) -> Result<EntryStoreId> {
         si.unstorified(store).map(|si| EntryStoreId(si))
     }
 
