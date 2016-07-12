@@ -2,6 +2,7 @@ use std::fmt::Error as FmtError;
 use std::fmt::{Display, Formatter};
 use std::path::PathBuf;
 use std::result::Result as RResult;
+use std::ops::Deref;
 
 use store::Result;
 use store::Store;
