@@ -60,3 +60,17 @@ impl Display for EntryStoreId {
 
 }
 
+pub trait IntoEntryStoreId {
+
+    fn into_entry_store_id(self, &Store) -> Result<EntryStoreId>;
+
+}
+
+impl<I: IntoStoreId> IntoEntryStoreId for I {
+
+    fn into_entry_store_id(self, store: &Store) -> Result<EntryStoreId> {
+        EntryStoreId::new(store, self.into_storeid())
+    }
+
+}
+
