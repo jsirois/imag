@@ -26,6 +26,7 @@ use error::{ParserErrorKind, ParserError};
 use error::{StoreError as SE, StoreErrorKind as SEK};
 use error::MapErrInto;
 use storeid::{IntoStoreId, StoreId, StoreIdIterator};
+use entrystoreid::{IntoEntryStoreId, EntryStoreId};
 use lazyfile::LazyFile;
 
 use hook::aspect::Aspect;
@@ -54,7 +55,7 @@ enum StoreEntryStatus {
 /// or not.
 #[derive(Debug)]
 struct StoreEntry {
-    id: StoreId,
+    id: EntryStoreId,
     file: LazyFile,
     status: StoreEntryStatus,
 }
@@ -112,10 +113,10 @@ impl Iterator for Walk {
 
 impl StoreEntry {
 
-    fn new(id: StoreId) -> StoreEntry {
+    fn new(id: EntryStoreId) -> StoreEntry {
         StoreEntry {
             id: id.clone(),
-            file: LazyFile::Absent(id.into()),
+            file: LazyFile::Absent(id.into_storeid().into()),
             status: StoreEntryStatus::Present,
         }
     }
@@ -194,7 +195,7 @@ pub struct Store {
      *
      * Could be optimized for a threadsafe HashMap
      */
-    entries: Arc<RwLock<HashMap<StoreId, StoreEntry>>>,
+    entries: Arc<RwLock<HashMap<EntryStoreId, StoreEntry>>>,
 }
 
 impl Store {
@@ -318,7 +319,7 @@ impl Store {
 
     /// Creates the Entry at the given location (inside the entry)
     pub fn create<'a, S: IntoStoreId>(&'a self, id: S) -> Result<FileLockEntry<'a>> {
-        let id = id.into_storeid().storified(self);
+        let id = try!(id.into_entry_store_id(self));
         if let Err(e) = self.execute_hooks_for_id(self.pre_create_aspects.clone(), &id) {
             return Err(e)
                 .map_err_into(SEK::PreHookExecuteError)
@@ -352,7 +353,7 @@ impl Store {
     /// Implicitely creates a entry in the store if there is no entry with the id `id`. For a
     /// non-implicitely-create look at `Store::get`.
     pub fn retrieve<'a, S: IntoStoreId>(&'a self, id: S) -> Result<FileLockEntry<'a>> {
-        let id = id.into_storeid().storified(self);
+        let id = try!(id.into_entry_store_id(self));
         if let Err(e) = self.execute_hooks_for_id(self.pre_retrieve_aspects.clone(), &id) {
             return Err(e)
                 .map_err_into(SEK::PreHookExecuteError)
@@ -499,7 +500,7 @@ impl Store {
     /// Retrieve a copy of a given entry, this cannot be used to mutate
     /// the one on disk
     pub fn retrieve_copy<S: IntoStoreId>(&self, id: S) -> Result<Entry> {
-        let id = id.into_storeid().storified(self);
+        let id = try!(id.into_entry_store_id(self));
         let entries = match self.entries.write() {
             Err(_) => {
                 return Err(SE::new(SEK::LockPoisoned, None))
@@ -518,7 +519,7 @@ impl Store {
 
     /// Delete an entry
     pub fn delete<S: IntoStoreId>(&self, id: S) -> Result<()> {
-        let id = id.into_storeid().storified(self);
+        let id = try!(id.into_entry_store_id(self));
         if let Err(e) = self.execute_hooks_for_id(self.pre_delete_aspects.clone(), &id) {
             return Err(e)
                 .map_err_into(SEK::PreHookExecuteError)
@@ -539,12 +540,12 @@ impl Store {
 
         // remove the entry first, then the file
         entries.remove(&id);
-        if let Err(e) = remove_file(&id) {
+        if let Err(e) = remove_file(id.deref()) {
             return Err(SEK::FileError.into_error_with_cause(Box::new(e)))
                 .map_err_into(SEK::DeleteCallError);
         }
 
-        self.execute_hooks_for_id(self.post_delete_aspects.clone(), &id)
+        self.execute_hooks_for_id(self.post_delete_aspects.clone(), id.deref())
             .map_err_into(SEK::PreHookExecuteError)
             .map_err_into(SEK::DeleteCallError)
     }
@@ -568,8 +569,8 @@ impl Store {
         use std::fs::copy;
         use std::fs::remove_file;
 
-        let new_id = new_id.storified(self);
-        let hsmap = self.entries.write();
+        let new_id = try!(new_id.into_entry_store_id(self));
+        let hsmap  = self.entries.write();
         if hsmap.is_err() {
             return Err(SE::new(SEK::LockPoisoned, None)).map_err_into(SEK::MoveCallError)
         }
@@ -579,7 +580,7 @@ impl Store {
 
         let old_id = entry.get_location().clone();
 
-        copy(old_id.clone(), new_id.clone())
+        copy(old_id.clone().into_storeid(), new_id.clone().into_storeid())
             .and_then(|_| {
                 if remove_old {
                     remove_file(old_id)
@@ -597,8 +598,8 @@ impl Store {
     pub fn move_by_id(&self, old_id: StoreId, new_id: StoreId) -> Result<()> {
         use std::fs::rename;
 
-        let new_id = new_id.storified(self);
-        let old_id = old_id.storified(self);
+        let new_id = try!(new_id.into_entry_store_id(self));
+        let old_id = try!(old_id.into_entry_store_id(self));
 
         if let Err(e) = self.execute_hooks_for_id(self.pre_move_aspects.clone(), &old_id) {
             return Err(e)
@@ -613,7 +614,7 @@ impl Store {
         if hsmap.unwrap().contains_key(&old_id) {
             return Err(SE::new(SEK::EntryAlreadyBorrowed, None));
         } else {
-            match rename(old_id, new_id.clone()) {
+            match rename(old_id.into_storeid(), new_id.clone().into_storeid()) {
                 Err(e) => return Err(SEK::EntryRenameError.into_error_with_cause(Box::new(e))),
                 _ => {
                     debug!("Rename worked");
@@ -1312,14 +1313,14 @@ fn has_imag_version_in_main_section(t: &Table) -> bool {
  */
 #[derive(Debug, Clone)]
 pub struct Entry {
-    location: StoreId,
+    location: EntryStoreId,
     header: EntryHeader,
     content: EntryContent,
 }
 
 impl Entry {
 
-    pub fn new(loc: StoreId) -> Entry {
+    pub fn new(loc: EntryStoreId) -> Entry {
         Entry {
             location: loc,
             header: EntryHeader::new(),
