@@ -318,7 +318,8 @@ impl Store {
 
     /// Creates the Entry at the given location (inside the entry)
     pub fn create<'a, S: IntoStoreId>(&'a self, id: S) -> Result<FileLockEntry<'a>> {
-        let id = id.into_storeid().storified(self);
+        let not_storified_id = id.into_storeid();
+        let id               = not_storified.clone().storified(self);
         if let Err(e) = self.execute_hooks_for_id(self.pre_create_aspects.clone(), &id) {
             return Err(e)
                 .map_err_into(SEK::PreHookExecuteError)
@@ -334,12 +335,12 @@ impl Store {
             return Err(SEK::EntryAlreadyExists.into_error()).map_err_into(SEK::CreateCallError);
         }
         hsmap.insert(id.clone(), {
-            let mut se = StoreEntry::new(id.clone());
+            let mut se = StoreEntry::new(not_storified_id.clone());
             se.status = StoreEntryStatus::Borrowed;
             se
         });
 
-        let mut fle = FileLockEntry::new(self, Entry::new(id));
+        let mut fle = FileLockEntry::new(self, Entry::new(not_storified_id));
         self.execute_hooks_for_mut_file(self.post_create_aspects.clone(), &mut fle)
             .map_err_into(SEK::PostHookExecuteError)
             .map(|_| fle)
