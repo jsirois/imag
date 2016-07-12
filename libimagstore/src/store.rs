@@ -1337,37 +1337,6 @@ impl Entry {
         Self::from_str(loc, &text[..])
     }
 
-    pub fn from_str<S: IntoStoreId>(loc: S, s: &str) -> Result<Entry> {
-        debug!("Building entry from string");
-        lazy_static! {
-            static ref RE: Regex = Regex::new(r"(?smx)
-                ^---$
-                (?P<header>.*) # Header
-                ^---$\n
-                (?P<content>.*) # Content
-            ").unwrap();
-        }
-
-        let matches = match RE.captures(s) {
-            None    => return Err(SE::new(SEK::MalformedEntry, None)),
-            Some(s) => s,
-        };
-
-        let header = match matches.name("header") {
-            None    => return Err(SE::new(SEK::MalformedEntry, None)),
-            Some(s) => s
-        };
-
-        let content = matches.name("content").unwrap_or("");
-
-        debug!("Header and content found. Yay! Building Entry object now");
-        Ok(Entry {
-            location: loc.into_storeid(),
-            header: try!(EntryHeader::parse(header)),
-            content: content.into(),
-        })
-    }
-
     pub fn to_str(&self) -> String {
         format!("---{header}---\n{content}",
                 header  = ::toml::encode_str(&self.header.header),
@@ -1588,29 +1557,6 @@ mod test {
 version = \"0.0.3\"
 ---
 Hai";
-
-    #[test]
-    fn test_entry_from_str() {
-        use super::Entry;
-        use std::path::PathBuf;
-        println!("{}", TEST_ENTRY);
-        let entry = Entry::from_str(PathBuf::from("/test/foo~1.3"),
-                                    TEST_ENTRY).unwrap();
-
-        assert_eq!(entry.content, "Hai");
-    }
-
-    #[test]
-    fn test_entry_to_str() {
-        use super::Entry;
-        use std::path::PathBuf;
-        println!("{}", TEST_ENTRY);
-        let entry = Entry::from_str(PathBuf::from("/test/foo~1.3"),
-                                    TEST_ENTRY).unwrap();
-        let string = entry.to_str();
-
-        assert_eq!(TEST_ENTRY, string);
-    }
 
     #[test]
     fn test_walk_header_simple() {
